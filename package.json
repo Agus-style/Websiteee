@@ -1,0 +1,14 @@
+{
+  "name": "Project",
+  "version": "1.0.0",
+  "description": "Proyek upload file dengan EJS",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "multer": "^1.4.5-lts.1",
+    "ejs": "^3.1.8"
+  }
+}

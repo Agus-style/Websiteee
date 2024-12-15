@@ -1,0 +1,21 @@
+<% include('layout') %>
+
+<div class="upload-form">
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="file" accept="image/*" required>
+    <button type="submit">Upload</button>
+  </form>
+</div>
+
+<div class="gallery">
+  <% if (images.length > 0) { %>
+    <% images.forEach((image) => { %>
+      <div class="gallery-item">
+        <img src="/uploads/<%= image %>" alt="<%= image %>">
+        <p><%= image %></p>
+      </div>
+    <% }) %>
+  <% } else { %>
+    <p>Tidak ada gambar yang diunggah.</p>
+  <% } %>
+</div>

@@ -1,21 +1,30 @@
-<% include('layout') %>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Foto</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Upload Foto ke Supabase</h1>
 
-<div class="upload-form">
-  <form action="/upload" method="POST" enctype="multipart/form-data">
-    <input type="file" name="file" accept="image/*" required>
-    <button type="submit">Upload</button>
-  </form>
-</div>
+    <!-- Form Upload File -->
+    <form action="/upload" method="POST" enctype="multipart/form-data" class="upload-form">
+      <input type="file" name="file" accept="image/*" required>
+      <button type="submit" class="upload-btn">Upload</button>
+    </form>
 
-<div class="gallery">
-  <% if (images.length > 0) { %>
-    <% images.forEach((image) => { %>
-      <div class="gallery-item">
-        <img src="/uploads/<%= image %>" alt="<%= image %>">
-        <p><%= image %></p>
+    <!-- Jika fileUrl tersedia, tampilkan gambar yang diupload -->
+    <% if (fileUrl) { %>
+      <div class="result">
+        <h2>Foto yang Diupload:</h2>
+        <img src="<%= fileUrl %>" alt="Uploaded Image" class="uploaded-img">
       </div>
-    <% }) %>
-  <% } else { %>
-    <p>Tidak ada gambar yang diunggah.</p>
-  <% } %>
-</div>
+    <% } %>
+  </div>
+
+  <script src="/script.js"></script>
+</body>
+</html>

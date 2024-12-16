@@ -1,14 +1,18 @@
 {
   "name": "Project",
   "version": "1.0.0",
-  "description": "Proyek upload file dengan EJS",
+  "description": "A simple file upload project using Supabase",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
+  "author": "Agus",
+  "license": "MIT",
   "dependencies": {
-    "express": "^4.18.2",
-    "multer": "^1.4.5-lts.1",
-    "ejs": "^3.1.8"
+    "@supabase/supabase-js": "^2.0.0",
+    "dotenv": "^10.0.0",
+    "ejs": "^3.1.7",
+    "express": "^4.17.1",
+    "multer": "^1.4.3"
   }
 }

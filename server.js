@@ -1,63 +1,56 @@
 const express = require('express');
 const multer = require('multer');
+const { createClient } = require('@supabase/supabase-js');
 const path = require('path');
-const fs = require('fs');
+const dotenv = require('dotenv');
+
+dotenv.config();  // Menggunakan dotenv untuk membaca file .env
 
 const app = express();
-const PORT = 3000;
+const upload = multer({ dest: 'uploads/' }); // Folder sementara untuk file yang diupload
 
-// Konfigurasi Multer untuk upload
-const upload = multer({
-  dest: path.join(__dirname, 'uploads'),
-  fileFilter: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    if (['.jpg', '.jpeg', '.png', '.webp'].includes(ext)) {
-      cb(null, true);
-    } else {
-      cb(new Error('Hanya file gambar yang diperbolehkan!'));
-    }
-  },
-});
+// Supabase client
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY);
 
-// Konfigurasi EJS
+// Menggunakan EJS sebagai template engine
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-
-// Middleware
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(express.static('public')); // Untuk file static (CSS, JS)
 
 // Halaman utama
 app.get('/', (req, res) => {
-  const folderPath = path.join(__dirname, 'uploads');
-  fs.readdir(folderPath, (err, files) => {
-    if (err) return res.status(500).send('Error membaca folder');
-
-    // Filter hanya file gambar
-    const images = files.filter((file) => /\.(jpg|jpeg|png|webp)$/i.test(file));
-    res.render('index', { images });
-  });
+  res.render('index', { fileUrl: null });
 });
 
-// Endpoint upload file
-app.post('/upload', upload.single('file'), (req, res) => {
-  if (!req.file) {
-    return res.status(400).send('File tidak valid');
+// Mengupload file ke Supabase
+app.post('/upload', upload.single('file'), async (req, res) => {
+  const file = req.file;
+  if (!file) {
+    return res.status(400).json({ message: 'No file uploaded.' });
   }
 
-  const originalExt = path.extname(req.file.originalname).toLowerCase();
-  const newFileName = `${req.file.filename}${originalExt}`;
-  const newPath = path.join(__dirname, 'uploads', newFileName);
+  const filePath = `uploads/${file.filename}`;
 
-  // Rename file ke nama baru
-  fs.rename(req.file.path, newPath, (err) => {
-    if (err) return res.status(500).send('Error saat memproses file');
+  // Mengupload file ke Supabase
+  const { data, error } = await supabase.storage
+    .from('uploads') // Nama bucket di Supabase
+    .upload(filePath, file.buffer, {
+      contentType: file.mimetype,
+    });
 
-    res.redirect('/');
-  });
+  if (error) {
+    return res.status(500).json({ message: 'Error uploading file.', error });
+  }
+
+  // Mendapatkan URL publik file setelah diupload
+  const publicURL = supabase.storage
+    .from('uploads')
+    .getPublicUrl(filePath);
+
+  // Render halaman dengan URL file yang baru diupload
+  res.render('index', { fileUrl: publicURL.publicURL });
 });
 
-// Menjalankan server
-app.listen(PORT, () => {
-  console.log(`Server berjalan di http://localhost:${PORT}`);
+// Menjalankan server di port 3000
+app.listen(3000, () => {
+  console.log('Server berjalan di http://localhost:3000');
 });
